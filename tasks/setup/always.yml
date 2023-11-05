@@ -1,4 +1,10 @@
 ---
+- name: Ensure git is installed
+  become: true
+  ansible.builtin.package:
+    name: git
+    state: present
+
 - name: Clone Mailcow repository
   become: true
   tags: molecule-idempotence-notest
@@ -23,5 +29,7 @@
     project_src: /opt/mailcow-dockerized
     project_name: "{{ mailcow_compose_project_name }}"
     state: present
+  register: mailcow_start
+  failed_when: "mailcow_start is failed and 'molecule-notest' not in ansible_skip_tags"  # Might not work in GH Actions
 
 ...
