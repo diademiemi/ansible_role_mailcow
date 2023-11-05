@@ -1,0 +1,27 @@
+---
+- name: Clone Mailcow repository
+  become: true
+  tags: molecule-idempotence-notest
+  ansible.builtin.git:
+    repo: https://github.com/mailcow/mailcow-dockerized.git
+    dest: /opt/mailcow-dockerized
+    version: "{{ mailcow_git_tag }}"
+    force: "{{ mailcow_git_override_changes }}"
+
+- name: Copy Mailcow configuration file
+  become: true
+  ansible.builtin.template:
+    src: mailcow.conf.j2
+    dest: /opt/mailcow-dockerized/mailcow.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start Mailcow
+  become: true
+  community.docker.docker_compose:
+    project_src: /opt/mailcow-dockerized
+    project_name: "{{ mailcow_compose_project_name }}"
+    state: present
+
+...

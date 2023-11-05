@@ -1,11 +1,11 @@
 Ansible Role Template
 =========
 
-[![Molecule Test](https://github.com/diademiemi/ansible_role_template/actions/workflows/molecule.yml/badge.svg)](https://github.com/diademiemi/ansible_role_template/actions/workflows/molecule.yml)
+[![Molecule Test](https://github.com/diademiemi/ansible_role_mailcow/actions/workflows/molecule.yml/badge.svg)](https://github.com/diademiemi/ansible_role_mailcow/actions/workflows/molecule.yml)
 
-This is an Ansible role to install and configure template.
+This is an Ansible role to install and configure mailcow.
 
-Include more information about template in this section.
+Include more information about mailcow in this section.
 
 Requirements
 ------------
@@ -28,6 +28,38 @@ Role Variables
 
 Variable | Default | Description
 --- | --- | ---
+`mailcow_git_tag` | `"2023-10a"` | The git tag to use for Mailcow
+`mailcow_git_override_changes` | `true` | Prevents updating or changing Mailcow manually
+`mailcow_pass_scheme` | `"BLF-CRYPT"` | The password scheme for Mailcow
+`mailcow_hostname` | `{{ ansible_fqdn }}` | The fully qualified domain name for Mailcow
+`mailcow_dbname` | `"mailcow"` | The database name for Mailcow
+`mailcow_dbuser` | `"mailcow"` | The database user for Mailcow
+`mailcow_dbpass` | `"mailcow"` | The database password for Mailcow
+`mailcow_dbroot` | `{{ mailcow_dbpass }}` | The root password for the Mailcow database
+`mailcow_http_port` | `80` | The HTTP port for Mailcow
+`mailcow_https_port` | `443` | The HTTPS port for Mailcow
+`mailcow_http_bind` | `"0.0.0.0"` | The bind address for Mailcow's HTTP service
+`mailcow_https_bind` | `"0.0.0.0"` | The bind address for Mailcow's HTTPS service
+`mailcow_tz` | `"UTC"` | The timezone setting for Mailcow
+`mailcow_compose_project_name` | `"mailcowdockerized"` | The Docker Compose project name for Mailcow
+`mailcow_docker_compose_version` | `"native"` | Indicates the version of Docker Compose to use
+`mailcow_additional_san` | `""` | Additional Subject Alternative Names for SSL
+`mailcow_additional_server_names` | `""` | Additional server names for Mailcow
+`mailcow_letsencrypt` | `true` | Whether to use Let's Encrypt for SSL certificates
+`mailcow_ip_check` | `true` | Enables IP checking for Mailcow
+`mailcow_http_verification` | `true` | Enables HTTP verification for Mailcow
+`mailcow_clamd` | `true` | Whether to enable ClamAV for Mailcow
+`mailcow_sogo` | `true` | Whether to enable SOGo for Mailcow
+`mailcow_solr` | `true` | Whether to enable Solr for Mailcow
+`mailcow_use_watchdog` | `true` | Whether to use the watchdog feature in Mailcow
+`mailcow_watchdog_verbose_logging` | `false` | Enables verbose logging for the Mailcow watchdog
+`mailcow_internal_ipv4_network` | `"172.22.1"` | The internal IPv4 network range for Mailcow
+`mailcow_internal_ipv6_network` | `"fd4d:6169:6c63:6f77::/64"` | The internal IPv6 network range for Mailcow
+`mailcow_api_key` | `"mailcow"` | The API key for Mailcow
+`mailcow_api_key_readonly` | `"mailcow"` | The read-only API key for Mailcow
+`mailcow_api_allow_from` | `{{ ansible_default_ipv4.address }}` | The allowed IP address for Mailcow API access
+`mailcow_allow_admin_email_login` | `false` | Whether to allow admin email login in Mailcow
+
 <!--
 `variable` | `default` | Variable example
 `long_variable` | See [defaults/main.yml](./defaults/main.yml) | Variable referring to defaults
@@ -43,11 +75,11 @@ Example Playbook
 ----------------
 
 ```yaml
-- name: Use diademiemi.template role
-  hosts: "{{ target | default('template') }}"
+- name: Use diademiemi.mailcow role
+  hosts: "{{ target | default('mailcow') }}"
   roles:
-    - role: "diademiemi.template"
-      tags: ['diademiemi', 'template', 'setup']    ```
+    - role: "diademiemi.mailcow"
+      tags: ['diademiemi', 'mailcow', 'setup']    ```
 
 ```
 
@@ -64,7 +96,7 @@ Author Information
 Role Testing
 ------------
 
-This repository comes with Molecule tests for Docker on the supported platforms.
+This repository comes with Molecule that run in Podman on the supported platforms.
 Install Molecule by running
 
 ```bash
@@ -79,38 +111,3 @@ molecule test
 
 These tests are automatically ran by GitHub Actions on push. If the tests are successful, the role is automatically published to Ansible Galaxy.
 
-Role Structure
---------------
-
-Roles have an entrypoint `main.yml` which includes other files.  
-For every file in `vars/`, `tasks/assert/` that matches the host these vars will be imported and assertions will be ran. For `tasks/setup` only the file most closely resembling the host will ran. If other tasks are necessary they can be included. If no file is found, it falls back to `default.yml`.  
-
-A variable `__role_action` can be used to change the path from `tasks/setup`. This can be useful when tasks should be run to revert the steps from the role or include a role from an upstream collection (E.g. including the Checkmk collection `tribe29.checkmk.agent` role instead of one's own). This can also be a list to chain these together (E.g. include preparation/post-setup tasks around the upstream role).  
-
-Please see [tasks/upstream/default.yml](./tasks/upstream/default.yml) for an example on how to include an upstream role.  
-
-This is an easy way to provide distro-specific variables, assertions and tasks and allows me to keep the role structure clean.  
-
-GitHub Actions is supposed to fail for this template repository, as it does not contain any meaningful role. There is an explicit assertion to check if the role name has been changed from `template` which causes the test to fail.  
-
-Using Template
---------------
-To use this template for a new role, run
-
-
-```bash
-export NEW_ROLE_NAME="NEW_NAME"
-export GITHUB_USER="diademiemi"
-export GALAXY_API_KEY="YOUR_API_KEY"
-
-find . -type f -exec sed -i "s/diademiemi/${GITHUB_USER}/g" {} + # Do not run this more than once
-find . -type f -exec sed -i "s/template/${NEW_ROLE_NAME}/g" {} + # Do not run this more than once
-
-# Assumes repo is named ansible_role_${NEW_ROLE_NAME}
-gh secret set GALAXY_API_KEY -R ${GITHUB_USER}/ansible_role_${NEW_ROLE_NAME} -a actions -b ${GALAXY_API_KEY}
-
-# Remove this section from README.md
-sed -i "/Role Structure/Q" README.md
-```
-
-This is also provided as a script as `replace.sh`.  

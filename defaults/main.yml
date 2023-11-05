@@ -1,3 +1,43 @@
 ---
+mailcow_git_tag: "2023-10a"
+mailcow_git_override_changes: true  # This means you should not update or change mailcow manually
 
+mailcow_pass_scheme: BLF-CRYPT
+
+mailcow_hostname: "{{ ansible_fqdn }}"
+mailcow_dbname: mailcow
+mailcow_dbuser: mailcow
+mailcow_dbpass: mailcow
+mailcow_dbroot: "{{ mailcow_dbpass }}"
+
+mailcow_http_port: 80
+mailcow_https_port: 443
+mailcow_http_bind: 0.0.0.0
+mailcow_https_bind: 0.0.0.0
+
+mailcow_tz: UTC
+
+mailcow_compose_project_name: mailcowdockerized
+mailcow_docker_compose_version: native  # For newer versions of docker-compose, use "native"
+
+mailcow_additional_san: ""
+mailcow_additional_server_names: ""
+
+mailcow_letsencrypt: true
+mailcow_ip_check: true
+mailcow_http_verification: true
+mailcow_clamd: true
+mailcow_sogo: true
+mailcow_solr: true
+mailcow_use_watchdog: true
+mailcow_watchdog_verbose_logging: false
+
+mailcow_internal_ipv4_network: "172.22.1"
+mailcow_internal_ipv6_network: "fd4d:6169:6c63:6f77::/64"
+
+mailcow_api_key: "mailcow"
+mailcow_api_key_readonly: "mailcow"
+mailcow_api_allow_from: "{{ ansible_default_ipv4.address }}"
+
+mailcow_allow_admin_email_login: false
 ...
